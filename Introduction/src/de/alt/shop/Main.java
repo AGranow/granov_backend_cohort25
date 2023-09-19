@@ -1,3 +1,5 @@
+package de.alt.shop;
+
 import de.alt.shop.conntrollers.UsersController;
 import de.alt.shop.repositories.UsersRepository;
 import de.alt.shop.repositories.impl.UserRepositoryFileImpl;
