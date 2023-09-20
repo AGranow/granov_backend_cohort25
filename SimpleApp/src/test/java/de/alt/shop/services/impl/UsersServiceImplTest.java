@@ -2,12 +2,13 @@ package de.alt.shop.services.impl;
 
 import de.alt.shop.models.User;
 import de.alt.shop.repositories.UsersRepository;
+import de.alt.shop.validation.EmailValidator;
+import de.alt.shop.validation.PasswordValidator;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("UsersServiceImpl is works...")
 @DisplayNameGeneration(value = DisplayNameGenerator.ReplaceUnderscores.class) // убирает _
@@ -27,11 +28,16 @@ class UsersServiceImplTest {
 
     UsersServiceImpl usersService; // Объект который мы тестируем
     private UsersRepository usersRepository;
+    private EmailValidator emailValidator;
+    private PasswordValidator passwordValidator;
 
     @BeforeEach
     public void setUp() {
         // Мы просим Mockito создать объект типа UsersRepository
         usersRepository = Mockito.mock(UsersRepository.class);
+
+        emailValidator = Mockito.mock(EmailValidator.class);
+        passwordValidator = Mockito.mock(PasswordValidator.class);
 
         // явно прописываем поведение методов на конкретных данных
         // stubbing
@@ -42,10 +48,12 @@ class UsersServiceImplTest {
 
 
         // когда у usersRepository вызываем findOneByEmail с аргументом user1@gmail.com возвращается null
-
         when(usersRepository.findOneByEmail(NOT_EXIST_USER_EMAIL)).thenReturn(null);
+// когда EmailValidator вызывает validate на пустом email (это void метод)
+        doThrow(IllegalArgumentException.class).when(emailValidator).validate(null);
+        doThrow(IllegalArgumentException.class).when(passwordValidator).validate(" ");
 
-        this.usersService = new UsersServiceImpl(usersRepository);
+        this.usersService = new UsersServiceImpl(usersRepository, emailValidator,passwordValidator);
     }
 
     @Nested
@@ -60,6 +68,7 @@ class UsersServiceImplTest {
 
         @Test
         public void on_in_correct_password_throws_exception() {
+//            verify(emailValidator).validate("");
             // указываем тип ожидаемой ошибки через .class
             assertThrows(IllegalArgumentException.class, () -> usersService.addUser(EXIST_USER_EMAIL, null));
         }

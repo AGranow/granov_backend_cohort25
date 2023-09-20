@@ -3,6 +3,8 @@ package de.alt.shop.services.impl;
 import de.alt.shop.models.User;
 import de.alt.shop.repositories.UsersRepository;
 import de.alt.shop.services.UsersService;
+import de.alt.shop.validation.EmailValidator;
+import de.alt.shop.validation.PasswordValidator;
 
 import java.util.List;
 
@@ -11,18 +13,18 @@ public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
 
-    public UsersServiceImpl(UsersRepository usersRepository) {
+    private final EmailValidator emailValidator;
+    private final PasswordValidator passwordValidator;
+
+    public UsersServiceImpl(UsersRepository usersRepository, EmailValidator emailValidator,PasswordValidator passwordValidator) {
         this.usersRepository = usersRepository;
+        this.emailValidator = emailValidator;
+        this.passwordValidator = passwordValidator;
     }
 
     public User addUser(String email, String password) {
-        if (email == null || email.equals("") || email.equals(" ")) {  // валидируем (проверяем)  email
-            throw new IllegalArgumentException("Email не может быть пустым");
-        }
-
-        if (password == null || password.equals("") || password.equals(" ")) {  // валидируем (проверяем)  email
-            throw new IllegalArgumentException("Password не может быть пустым");
-        }
+        emailValidator.validate(email);
+        passwordValidator.validate(password);
 
         User existedUser = usersRepository.findOneByEmail(email); // находим пользователя по email
 
